@@ -7,6 +7,7 @@ import com.example.ecommerce.service.ClientService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +42,7 @@ public class ClientController {
 
     @Operation(summary = "Criar um cliente")
     @PostMapping("/")
-    public ResponseEntity<ClientResponseDTO> create(@RequestBody ClientRequestDTO body) {
+    public ResponseEntity<ClientResponseDTO> create(@Valid @RequestBody ClientRequestDTO body) {
         return ResponseEntity.ok(clientService.save(body));
     }
 

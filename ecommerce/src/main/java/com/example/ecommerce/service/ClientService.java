@@ -12,6 +12,7 @@ import com.example.ecommerce.repository.AddressRepository;
 import com.example.ecommerce.repository.ClientRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,12 @@ public class ClientService {
             throw new BusinessException("Já existe um cliente com esse email");
         }
         // validar CPF...
-        clientRepository.save(client);
+
+        try {
+            clientRepository.save(client);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException("CPF já cadastrado no sistema!");
+        }
 
         return clientMapper.toResponseDTO(client);
     }
