@@ -3,6 +3,9 @@ package com.example.ecommerce.service;
 import com.example.ecommerce.domain.Category;
 import com.example.ecommerce.domain.dto.category.CategoryRequestDTO;
 import com.example.ecommerce.domain.dto.category.CategoryResponseDTO;
+import com.example.ecommerce.exception.BusinessException;
+import com.example.ecommerce.exception.ResourceNotFoundException;
+import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,30 +18,33 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public CategoryResponseDTO create(CategoryRequestDTO requestDataDTO) {
-        Category category = new Category();
-        category.setName(requestDataDTO.name());
-        category.setDescription(requestDataDTO.description());
+    @Autowired
+    private CategoryMapper mapper;
 
-        Category newCategory = categoryRepository.save(category);
-        return new CategoryResponseDTO(newCategory.getId(), newCategory.getName(), newCategory.getDescription(), newCategory.getProducts());
+    public CategoryResponseDTO create(CategoryRequestDTO body) {
+        var category = mapper.toEntity(body);
+
+        if (categoryRepository.existsByName(body.name())) {
+            throw new BusinessException("Já existe uma categoria com esse nome");
+        }
+
+        categoryRepository.save(category);
+
+        return mapper.toResponseDTO(category);
     }
 
     public CategoryResponseDTO getById(Long id) {
-        Category category = categoryRepository.findById(id).orElse(null);
-        assert category != null;
-        return new CategoryResponseDTO(category.getId(), category.getName(), category.getDescription(), category.getProducts());
+        var category = categoryRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Categoria não encontrada!")
+        );
+
+        return mapper.toResponseDTO(category);
     }
 
     public List<CategoryResponseDTO> list() {
         List<Category> categories = categoryRepository.findAll();
-        List<CategoryResponseDTO> categoriesDTO = new ArrayList<>();
 
-        for (Category category : categories) {
-            CategoryResponseDTO categoryDTO = new CategoryResponseDTO(category.getId(), category.getName(), category.getDescription(), category.getProducts());
-        }
-
-        return categoriesDTO;
+        return mapper.toDTOList(categories);
     }
 
     public void delete(Long id) {
@@ -46,14 +52,15 @@ public class CategoryService {
     }
 
     public CategoryResponseDTO update(Long id, CategoryRequestDTO body) {
-        Category category = categoryRepository.findById(id).orElse(null);
-        if (category != null) {
-            category.setName(body.name());
-            category.setDescription(body.description());
-            categoryRepository.save(category);
-            return new CategoryResponseDTO(category.getId(), category.getName(), category.getDescription(), category.getProducts());
-        }
-        return null;
+        var category = categoryRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Categoria não encontrada!")
+        );
+
+        mapper.updateEntityFromDTO(body, category);
+
+        var updatedCategory = categoryRepository.save(category);
+
+        return mapper.toResponseDTO(updatedCategory);
     }
 
 //    public associateProductInCategory

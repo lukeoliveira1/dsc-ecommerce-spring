@@ -13,6 +13,8 @@ public interface CategoryMapper {
 
     // Converter DTO para Categoria
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name")
+    @Mapping(target = "description")
     @Mapping(target = "products", ignore = true)
     Category toEntity(CategoryRequestDTO dto);
 
@@ -21,6 +23,8 @@ public interface CategoryMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name")
+    @Mapping(target = "description")
     @Mapping(target = "products", ignore = true)
     void updateEntityFromDTO(CategoryRequestDTO dto, @MappingTarget Category category);
 
