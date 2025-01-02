@@ -53,5 +53,25 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Adicionar produto em categoria")
+    @PostMapping("{idCategory}/products/{idProduct}")
+    public ResponseEntity<CategoryResponseDTO> addProductInCategory(
+            @PathVariable Long idCategory,
+            @PathVariable Long idProduct
+    ) {
+        return ResponseEntity.ok(
+                categoryService.associateProductInCategory(idCategory, idProduct)
+        );
+    }
 
+    @Operation(summary = "Remover produto em categoria")
+    @DeleteMapping("{idCategory}/products/{idProduct}")
+    public ResponseEntity<CategoryResponseDTO> removeProductOfCategory(
+            @PathVariable Long idCategory,
+            @PathVariable Long idProduct
+    ) {
+        return ResponseEntity.ok(
+                categoryService.removeProductOfCategory(idCategory, idProduct)
+        );
+    }
 }

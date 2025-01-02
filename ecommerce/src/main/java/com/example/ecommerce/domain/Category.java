@@ -1,13 +1,14 @@
 package com.example.ecommerce.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -24,5 +25,6 @@ public class Category {
     private String description;
 
     @ManyToMany(mappedBy = "categories")
-    private List<Product> products = new ArrayList<>();
+    @JsonManagedReference
+    private Set<Product> products = new HashSet<>();
 }

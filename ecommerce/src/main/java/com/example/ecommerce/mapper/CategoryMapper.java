@@ -9,6 +9,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
+
+    @Mapping(target = "products", source = "products")
     CategoryResponseDTO toResponseDTO(Category category);
 
     // Converter DTO para Categoria
