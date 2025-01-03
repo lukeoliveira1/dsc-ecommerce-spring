@@ -1,10 +1,16 @@
 package com.example.ecommerce.repository;
 
-import com.example.ecommerce.domain.Category;
+import com.example.ecommerce.domain.Purchase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface PurchaseRepository extends JpaRepository<Category, Long> {
+import java.util.List;
 
+@Repository
+public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
+    Page<Purchase> findAll(Pageable pageable);
+
+    List<Purchase> findByClientId(Long idClient);
 }
