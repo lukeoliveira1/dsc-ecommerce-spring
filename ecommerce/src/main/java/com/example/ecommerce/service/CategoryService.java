@@ -2,6 +2,7 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.domain.Category;
 import com.example.ecommerce.domain.Product;
+import com.example.ecommerce.domain.dto.category.CategoryProductsResponseDTO;
 import com.example.ecommerce.domain.dto.category.CategoryRequestDTO;
 import com.example.ecommerce.domain.dto.category.CategoryResponseDTO;
 import com.example.ecommerce.exception.BusinessException;
@@ -92,7 +93,7 @@ public class CategoryService {
         product.getCategories().add(category);
     }
 
-    public CategoryResponseDTO associateProductInCategory(
+    public CategoryProductsResponseDTO associateProductInCategory(
             @PathVariable Long idCategory,
             @PathVariable Long idProduct
     ) {
@@ -108,7 +109,7 @@ public class CategoryService {
 
         var updatedCategory = categoryRepository.save(category);
 
-        return categoryMapper.toResponseDTO(updatedCategory);
+        return categoryMapper.toResponseProductsDTO(updatedCategory);
     }
 
     public void deleteProductToCategory(Product product, Category category) {

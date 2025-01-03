@@ -1,5 +1,6 @@
 package com.example.ecommerce.controller;
 
+import com.example.ecommerce.domain.dto.category.CategoryProductsResponseDTO;
 import com.example.ecommerce.domain.dto.category.CategoryRequestDTO;
 import com.example.ecommerce.domain.dto.category.CategoryResponseDTO;
 import com.example.ecommerce.service.CategoryService;
@@ -55,7 +56,7 @@ public class CategoryController {
 
     @Operation(summary = "Adicionar produto em categoria")
     @PostMapping("{idCategory}/products/{idProduct}")
-    public ResponseEntity<CategoryResponseDTO> addProductInCategory(
+    public ResponseEntity<CategoryProductsResponseDTO> addProductInCategory(
             @PathVariable Long idCategory,
             @PathVariable Long idProduct
     ) {
