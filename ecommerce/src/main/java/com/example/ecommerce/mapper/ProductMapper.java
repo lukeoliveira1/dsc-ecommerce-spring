@@ -44,4 +44,5 @@ public interface ProductMapper {
     @Mapping(target = "categories", ignore = true)
     void updateEntityToPutDTO(ProductRequestPutDTO dto,
                            @MappingTarget Product product);
+
 }
