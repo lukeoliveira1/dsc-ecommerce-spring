@@ -24,8 +24,6 @@ public class Purchase {
 
     private LocalDateTime orderDate;
 
-    private String status;
-
     private BigDecimal totalValue;
 
     @Enumerated(EnumType.STRING)
@@ -37,4 +35,9 @@ public class Purchase {
 
     @OneToMany(mappedBy = "purchase")
     private List<OrderItem> items = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.orderDate = LocalDateTime.now();
+    }
 }
