@@ -110,6 +110,10 @@ public class ClientService {
             throw new BusinessException("Já existe um cliente com esse email");
         }
 
+        if (!isValidCpf(body.cpf())) {
+            throw new BusinessException("CPF inválido!");
+        }
+
         clientMapper.updateEntityFromDTO(body, client);
 
         var updatedClient = clientRepository.save(client);
