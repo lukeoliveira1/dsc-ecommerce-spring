@@ -1,5 +1,6 @@
 package com.example.ecommerce.service;
 
+import com.example.ecommerce.domain.Category;
 import com.example.ecommerce.domain.Product;
 import com.example.ecommerce.domain.dto.product.ProductRequestDTO;
 import com.example.ecommerce.domain.dto.product.ProductRequestPatchDTO;
@@ -8,6 +9,7 @@ import com.example.ecommerce.domain.dto.product.ProductResponseDTO;
 import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.ProductMapper;
+import com.example.ecommerce.repository.CategoryRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,12 +17,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private ProductMapper productMapper;
@@ -81,5 +87,16 @@ public class ProductService {
             throw new ResourceNotFoundException("Produto não encontrado!");
         }
         productRepository.deleteById(id);
+    }
+
+    public List<ProductResponseDTO> listByCategory(Long idCategory) {
+        Category category = categoryRepository.findById(idCategory).orElseThrow(
+                () -> new ResourceNotFoundException("Categoria não encontrado!")
+        );
+
+        List<Product> productsByCategory =
+                productRepository.findByCategories(category);
+
+        return productMapper.toDTOList(productsByCategory);
     }
 }

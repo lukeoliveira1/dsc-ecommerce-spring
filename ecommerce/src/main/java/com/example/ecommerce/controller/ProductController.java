@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -68,5 +70,13 @@ public class ProductController {
             @RequestBody ProductRequestPatchDTO body
     ) {
         return ResponseEntity.ok(productService.updateInventory(id, body));
+    }
+
+    @Operation(summary = "Listar produtos por categoria")
+    @GetMapping("category/{idCategory}")
+    public ResponseEntity<List<ProductResponseDTO>> removeProductOfCategory(
+            @PathVariable Long idCategory
+    ) {
+        return ResponseEntity.ok(productService.listByCategory(idCategory));
     }
 }
