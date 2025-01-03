@@ -84,6 +84,16 @@ public class ClientService {
         if (!clientRepository.existsById(id)) {
             throw new ResourceNotFoundException("Cliente não encontrado");
         }
+
+        Client client = clientRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Cliente não encontrado!")
+        );
+
+        if (!client.getPurchase().isEmpty()) {
+            throw new BusinessException("Cliente não pode ser removido se " +
+                    "possuir pedidos!");
+        }
+
         clientRepository.deleteById(id);
     }
 
