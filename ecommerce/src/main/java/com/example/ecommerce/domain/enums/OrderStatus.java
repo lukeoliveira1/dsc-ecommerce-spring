@@ -1,10 +1,10 @@
 package com.example.ecommerce.domain.enums;
 
 public enum OrderStatus {
-    AGUARDANDO("Aguardando informação"),
-    CANCELADO("Cancelar pedido"),
-    PAGO("Pago"),
-    ENVIADO("Enviado");
+    WAITING("Aguardando informação"),
+    CANCELLED("Cancelar pedido"),
+    PAID("Pago"),
+    SHIPPED("Enviado");
 
     private String description;
 
