@@ -142,6 +142,13 @@ public class PurchaseService {
                 () -> new ResourceNotFoundException("Pedido não encontrado!")
         );
 
+        OrderStatus currentStatus = purchase.getOrderStatus();
+        OrderStatus newStatus = body.orderStatus();
+
+        if(!isValidStatusTransition(currentStatus, newStatus)) {
+            throw new BusinessException("Transição de status inválida!");
+        }
+
         purchase.setOrderStatus(body.orderStatus());
 
         // atualizando o estoque se o pedido for pago
@@ -152,6 +159,22 @@ public class PurchaseService {
         purchaseRepository.save(purchase);
 
         return purchaseMapper.toResponseDTO(purchase);
+    }
+
+    private boolean isValidStatusTransition(OrderStatus currentStatus,
+                                            OrderStatus newStatus) {
+        switch (currentStatus) {
+            case WAITING:
+                return newStatus == OrderStatus.PAID || newStatus == OrderStatus.CANCELLED;
+            case PAID:
+                return newStatus == OrderStatus.SHIPPED || newStatus == OrderStatus.CANCELLED;
+            case SHIPPED:
+                return false;
+            case CANCELLED:
+                return false;
+            default:
+                return false;
+        }
     }
 
     /**
