@@ -41,7 +41,10 @@ public class ClientService {
         if (clientRepository.existsByEmail(body.email())) {
             throw new BusinessException("Já existe um cliente com esse email");
         }
-        // validar CPF...
+
+        if (!isValidCpf(body.cpf())) {
+            throw new BusinessException("CPF inválido!");
+        }
 
         try {
             clientRepository.save(client);
@@ -50,6 +53,40 @@ public class ClientService {
         }
 
         return clientMapper.toResponseDTO(client);
+    }
+
+    public static boolean isValidCpf(String cpf) {
+        int firstActualVerifier = Character.getNumericValue(cpf.charAt(9));
+        int secondActualVerifier = Character.getNumericValue(cpf.charAt(10));
+
+        // first verification number calculate
+        String firstNineNumbersOfCpf = cpf.substring(0, 9);
+        int firstCalculation = getCpfNumbersCalculation(8, firstNineNumbersOfCpf);
+        int realFirstVerifier = getRealVerifierNumber(firstCalculation);
+
+        if (realFirstVerifier != firstActualVerifier) {
+            return false;
+        }
+
+        // second verification number calculate
+        String firstTenNumbersOfCpf = cpf.substring(0, 10);
+        int secondCalculation = getCpfNumbersCalculation(9, firstTenNumbersOfCpf);
+        int realSecondVerifier = getRealVerifierNumber(secondCalculation);
+        return realSecondVerifier == secondActualVerifier;
+    }
+
+    private static int getRealVerifierNumber(int calculationTotal) {
+        int modOfFirstDivision = calculationTotal % 11;
+        return (modOfFirstDivision < 2) ? 0 : 11 - modOfFirstDivision;
+    }
+
+    private static int getCpfNumbersCalculation(int rangeEnd, String numbers) {
+        int sum = 0;
+        for (int position = 0; position <= rangeEnd; position++) {
+            int multiplier = (rangeEnd - position) + 2;
+            sum += multiplier * Character.getNumericValue(numbers.charAt(position));
+        }
+        return sum;
     }
 
     public Page<ClientResponseDTO> list(Pageable pageable) {
