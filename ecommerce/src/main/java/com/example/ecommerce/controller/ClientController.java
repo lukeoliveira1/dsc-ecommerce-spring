@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +27,16 @@ public class ClientController {
     @GetMapping("/")
     public ResponseEntity<Page<ClientResponseDTO>> list(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ClientResponseDTO> clientPage = clientService.list(pageable);
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.by(sortBy).with(Sort.Direction.fromString(sortDirection))));
+
+        Page<ClientResponseDTO> clientPage = clientService.list(sortBy,
+                sortDirection,
+                pageable);
 
         return ResponseEntity.ok(clientPage);
     }

@@ -14,7 +14,9 @@ import com.example.ecommerce.repository.CategoryRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +51,8 @@ public class ProductService {
                                          String nameCategory,
                                          BigDecimal minValue,
                                          BigDecimal maxValue,
+                                         String sortBy,
+                                         String sortDirection,
                                          Pageable pageable) {
         Specification<Product> specification =
                 Specification.where(ProductSpecification.hasName(name))
@@ -56,8 +60,18 @@ public class ProductService {
                         .and(ProductSpecification.hasValueGreaterThanOrEqualTo(minValue))
                         .and(ProductSpecification.hasValueLessThanOrEqualTo(maxValue));
 
+        // ordenação
+        Sort sort;
+        if ("desc".equalsIgnoreCase(sortDirection)) {
+            sort = Sort.by(Sort.Order.desc(sortBy));
+        } else {
+            sort = Sort.by(Sort.Order.asc(sortBy));
+        }
 
-        return productRepository.findAll(specification, pageable).map(productMapper::toResponseDTO);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(), sort);
+
+        return productRepository.findAll(specification, sortedPageable).map(productMapper::toResponseDTO);
     }
 
     public ProductResponseDTO getById(Long id) {

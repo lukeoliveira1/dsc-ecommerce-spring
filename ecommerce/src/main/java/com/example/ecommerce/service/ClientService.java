@@ -14,7 +14,9 @@ import com.example.ecommerce.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -89,10 +91,22 @@ public class ClientService {
         return sum;
     }
 
-    public Page<ClientResponseDTO> list(Pageable pageable) {
-        Page<Client> clientsPage = clientRepository.findAll(pageable);
+    public Page<ClientResponseDTO> list(String sortBy,
+                                        String sortDirection,
+                                        Pageable pageable) {
 
-        return clientsPage.map(clientMapper::toResponseDTO);
+        // ordenação
+        Sort sort;
+        if ("desc".equalsIgnoreCase(sortDirection)) {
+            sort = Sort.by(Sort.Order.desc(sortBy));
+        } else {
+            sort = Sort.by(Sort.Order.asc(sortBy));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(), sort);
+
+        return clientRepository.findAll(pageable).map(clientMapper::toResponseDTO);
     }
 
     public ClientResponseDTO getById(Long id) {

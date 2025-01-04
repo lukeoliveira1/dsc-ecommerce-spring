@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +33,17 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal minValue,
             @RequestParam(required = false) BigDecimal maxValue,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.by(sortBy).with(Sort.Direction.fromString(sortDirection))));
+
+
         Page<ProductResponseDTO> productPage =
                 productService.list(name, categoryName, minValue, maxValue,
-                        pageable);
+                        sortBy, sortDirection, pageable);
 
         return ResponseEntity.ok(productPage);
     }
