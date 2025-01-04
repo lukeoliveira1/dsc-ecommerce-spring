@@ -6,6 +6,7 @@ import com.example.ecommerce.domain.dto.product.ProductRequestDTO;
 import com.example.ecommerce.domain.dto.product.ProductRequestPatchDTO;
 import com.example.ecommerce.domain.dto.product.ProductRequestPutDTO;
 import com.example.ecommerce.domain.dto.product.ProductResponseDTO;
+import com.example.ecommerce.domain.specification.ProductSpecification;
 import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.exception.ResourceNotFoundException;
 import com.example.ecommerce.mapper.ProductMapper;
@@ -14,6 +15,7 @@ import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,10 +45,19 @@ public class ProductService {
         return productMapper.toResponseDTO(product);
     }
 
-    public Page<ProductResponseDTO> list(Pageable pageable) {
-        Page<Product> productsPage = productRepository.findAll(pageable);
+    public Page<ProductResponseDTO> list(String name,
+                                         String nameCategory,
+                                         BigDecimal minValue,
+                                         BigDecimal maxValue,
+                                         Pageable pageable) {
+        Specification<Product> specification =
+                Specification.where(ProductSpecification.hasName(name))
+                        .and(ProductSpecification.hasCategory(nameCategory))
+                        .and(ProductSpecification.hasValueGreaterThanOrEqualTo(minValue))
+                        .and(ProductSpecification.hasValueLessThanOrEqualTo(maxValue));
 
-        return productsPage.map(productMapper::toResponseDTO);
+
+        return productRepository.findAll(specification, pageable).map(productMapper::toResponseDTO);
     }
 
     public ProductResponseDTO getById(Long id) {

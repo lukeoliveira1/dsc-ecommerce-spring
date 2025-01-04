@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -30,12 +31,14 @@ public class PurchaseController {
     @Operation(summary = "Listar pedidos")
     @GetMapping("/")
     public ResponseEntity<Page<PurchaseResponseDTO>> list(
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<PurchaseResponseDTO> purchasesPage =
-                purchaseService.list(pageable);
+                purchaseService.list(startDate, endDate, pageable);
 
         return ResponseEntity.ok(purchasesPage);
     }

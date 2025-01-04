@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -47,8 +48,12 @@ public class PurchaseService {
     @Autowired
     private OrderItemMapper orderItemMapper;
 
-    public Page<PurchaseResponseDTO> list(Pageable pageable) {
-        Page<Purchase> purchasePage = purchaseRepository.findAll(pageable);
+    public Page<PurchaseResponseDTO> list(LocalDateTime startDate,
+                                          LocalDateTime endDate,
+                                          Pageable pageable) {
+        Page<Purchase> purchasePage =
+                purchaseRepository.findFilteredByOrderDate(startDate,
+                        endDate, pageable);
 
         return purchasePage.map(purchaseMapper::toResponseDTO);
     }
