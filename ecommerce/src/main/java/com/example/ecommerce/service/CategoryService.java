@@ -11,6 +11,7 @@ import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.repository.CategoryRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -41,6 +42,7 @@ public class CategoryService {
         return categoryMapper.toResponseDTO(category);
     }
 
+    @Cacheable(value = "categories", key = "#id")
     public CategoryResponseDTO getById(Long id) {
         var category = categoryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Categoria não encontrada!")
@@ -117,9 +119,8 @@ public class CategoryService {
             throw new ResourceNotFoundException("Não existe esse produto nessa categoria");
         }
 
-        if (category.getProducts() != null) {
-            category.getProducts().remove(product);
-        }
+        category.getProducts().remove(product);
+
 
         if (product.getCategories() != null) {
             product.getCategories().remove(category);
