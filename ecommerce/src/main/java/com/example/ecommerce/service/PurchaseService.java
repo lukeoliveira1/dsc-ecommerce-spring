@@ -16,6 +16,8 @@ import com.example.ecommerce.repository.ClientRepository;
 import com.example.ecommerce.repository.OrderItemRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import com.example.ecommerce.repository.PurchaseRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,24 +70,44 @@ public class PurchaseService {
 
     @Transactional
     public PurchaseResponseDTO save(PurchaseRequestDTO body) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        logger.info("Iniciando o processamento do pedido.");
+
         if (body.items().isEmpty()) {
+            logger.warn("Tentativa de salvar um pedido sem itens.");
             throw new BusinessException("Pedido deve ter pelo menos um item!");
         }
 
-       Client client = clientRepository.findById(body.idClient()).orElseThrow(
-                () -> new ResourceNotFoundException("Cliente não encontrado!")
+        logger.debug("Validando o cliente com ID: {}", body.idClient());
+        Client client =
+                clientRepository.findById(body.idClient()).orElseThrow(() -> {
+                    logger.error("Cliente com ID {} não encontrado.",
+                            body.idClient());
+                    return new ResourceNotFoundException("Cliente não " +
+                            "encontrado!");
+                }
         );
 
+        logger.debug("Mapeando o pedido para a entidade Purchase.");
         var purchase = purchaseMapper.toEntity(body);
         purchase.setClient(client);
         purchase.setOrderStatus(OrderStatus.WAITING);
 
         // criando os OrderItems em Purchase
+        logger.debug("Iniciando o mapeamento dos itens do pedido.");
         var orderItemsEntity = body.items().stream()
                 .map(orderItemDTO -> {
+                    logger.debug("Buscando produto com ID: {}", orderItemDTO.idProduct());
                     Product product =
                             productRepository.findById(orderItemDTO.idProduct())
-                            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado!"));
+                            .orElseThrow(() -> {
+                                logger.error("Produto com ID {} não " +
+                                        "encontrado", orderItemDTO.idProduct());
+                                return new ResourceNotFoundException("Produto" +
+                                        " " +
+                                        "não encontrado!");
+                            });
 
                     OrderItem orderItem = orderItemMapper.toEntity(orderItemDTO);
 
@@ -97,6 +119,7 @@ public class PurchaseService {
                     orderItem.setProduct(product);
                     orderItem.setPurchase(purchase);
 
+                    logger.debug("Validando o estoque para o produto ID: {}", product.getId());
                     validateProductInventory(orderItem);
 
                     return orderItem;
@@ -114,6 +137,7 @@ public class PurchaseService {
         orderItemRepository.saveAll(orderItemsEntity);
         purchaseRepository.save(purchase);
 
+        logger.info("Pedido processado com sucesso. ID do pedido: {}", purchase.getId());
         return purchaseMapper.toResponseDTO(purchase);
     }
 
